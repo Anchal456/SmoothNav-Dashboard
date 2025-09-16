@@ -1,0 +1,7 @@
+
+dash
+flask
+flask-socketio
+socketIO-client-nexus
+requests
+plotly
