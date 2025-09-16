@@ -1,4 +1,4 @@
-
+import os
 import dash
 from dash import dcc, html
 from dash.dependencies import Output, Input
@@ -6,19 +6,25 @@ import plotly.graph_objs as go
 import threading
 from socketIO_client_nexus import SocketIO as ClientSocketIO
 
+# Read SERVER_URL from environment variables (fallback to localhost)
+server_url = os.getenv('SERVER_URL', 'http://localhost:5000')
+
+# Store real-time data globally
 latest_data = {"gyroscope": [0, 0, 0], "accelerometer": [0, 0, 0], "magnetometer": [0, 0, 0]}
 
+# Background thread to listen to WebSocket
 def start_socket_listener():
     def on_sensor_data(data):
         global latest_data
         latest_data = data
 
-    client_socket = ClientSocketIO('localhost', 5000)
+    client_socket = ClientSocketIO(server_url, 80)
     client_socket.on('sensor_data', on_sensor_data)
     client_socket.wait()
 
 threading.Thread(target=start_socket_listener, daemon=True).start()
 
+# Dash App setup
 app = dash.Dash(__name__)
 app.layout = html.Div([
     html.H2('SmoothNav Sensor Visualization'),
